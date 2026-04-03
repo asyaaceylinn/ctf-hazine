@@ -1,0 +1,133 @@
+mkdir -p hazine_ctf && cd hazine_ctf && \
+curl -o map.png "https://p7.hiclipart.com/preview/565/25/276/treasure-map-buried-treasure-piracy-treasure-map.jpg" && \
+cat << 'EOF' > index.html
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Mini Hazine Avı CTF</title>
+<style>
+body{font-family:Arial;text-align:center;background:#eee;margin:0;}
+h1{margin-top:20px;color:#0aa}
+#map{
+position:relative;
+margin:20px auto;
+width:800px;
+height:500px;
+background:url('map.png') no-repeat center;
+background-size:cover;
+border:3px solid #0aa;
+border-radius:15px;
+box-shadow:0 0 15px #0aa;
+}
+.spot{
+position:absolute;
+width:50px;
+height:50px;
+cursor:pointer;
+border-radius:50%;
+background:rgba(255,215,0,0.3);
+transition:0.3s;
+}
+.spot:hover{transform:scale(1.3);background:rgba(255,215,0,0.6)}
+#message{margin-top:20px;font-size:20px;color:#333}
+#flag{font-size:28px;color:gold;display:none}
+</style>
+</head>
+<body>
+
+<h1>⭐ Mini Hazine Avı CTF ⭐</h1>
+
+<div id="map">
+<div id="s1" class="spot"></div>
+<div id="s2" class="spot"></div>
+<div id="s3" class="spot"></div>
+<div id="s4" class="spot"></div>
+<div id="s5" class="spot"></div>
+<div id="s6" class="spot"></div>
+</div>
+
+<p id="message"></p>
+<p id="flag"></p>
+
+<script>
+const ALPHABET="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+const spots=[
+{id:"s1",word:"VPN",shift:2,top:"80px",left:"500px",
+info:"VPN, internet bağlantını şifreleyerek gizliliğini koruyan bir sistemdir."},
+
+{id:"s2",word:"VIRUS",shift:3,top:"250px",left:"200px",
+info:"Virüs, bilgisayara zarar veren ve kendini kopyalayarak yayılan zararlı yazılımdır."},
+
+{id:"s3",word:"CODE",shift:1,top:"300px",left:"600px",
+info:"Code, bilgisayara ne yapacağını söyleyen komutların bütünüdür."},
+
+{id:"s4",word:"DATA",shift:4,top:"120px",left:"300px",
+info:"Data, bilgisayarda saklanan ve işlenen bilgilerdir."},
+
+{id:"s5",word:"MALWARE",shift:2,top:"320px",left:"400px",
+info:"Malware, sisteme zarar vermek için yazılmış tüm kötü amaçlı yazılımların genel adıdır."},
+
+{id:"s6",word:"LOGIN",shift:3,top:"180px",left:"80px",
+info:"Login, bir sisteme kullanıcı adı ve şifre ile giriş yapma işlemidir."}
+];
+
+let step=0;
+const msg=document.getElementById("message");
+const flag=document.getElementById("flag");
+
+function encrypt(word,shift){
+return word.split("").map(c=>ALPHABET[(ALPHABET.indexOf(c)+shift)%26]).join("");
+}
+
+function encAlphabet(shift){
+return ALPHABET.split("").map(c=>ALPHABET[(ALPHABET.indexOf(c)+shift)%26]).join("");
+}
+
+spots.forEach((s,i)=>{
+let el=document.getElementById(s.id);
+el.style.top=s.top;
+el.style.left=s.left;
+
+el.onclick=()=>{
+if(i===step){
+
+let answer=prompt(
+"Şifreli kelime: "+encrypt(s.word,s.shift)+
+"\nKaydırma: "+s.shift+
+"\n\nAlfabe: "+ALPHABET+
+"\nŞifrelenmiş Alfabe: "+encAlphabet(s.shift)
+);
+
+if(answer && answer.toUpperCase()===s.word){
+msg.innerText="✅ "+s.info;
+step++;
+
+if(step===spots.length){
+flag.innerText="🎉 CTF{HAZINE} 🎉";
+flag.style.display="block";
+}
+
+}else{
+reset("❌ Yanlış!");
+}
+
+}else{
+reset("⚠️ Sıra yanlış!");
+}
+};
+});
+
+function reset(t){
+msg.innerText=t;
+step=0;
+flag.style.display="none";
+}
+</script>
+
+</body>
+</html>
+EOF
+
+open index.html
